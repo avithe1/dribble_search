@@ -1,103 +1,420 @@
+"use client";
+import React, { useState, useEffect } from "react";
+import {
+  Search,
+  Settings,
+  Paperclip,
+  User,
+  Link,
+  SquareArrowOutUpRight,
+  MessageCircle,
+  TextAlignJustify,
+} from "lucide-react";
+import { createDelay, tabsData } from "./data";
+import { contents } from "./data";
 import Image from "next/image";
 
-export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+function useDebounce(value: string, delay: number) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    // Cleanup function: clears the timeout if value or delay changes
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
+const SearchBar = () => {
+  const [isOpen, setOpen] = useState<boolean>(false);
+  const [searchText, setSearchText] = useState<string>("");
+  const [selectedTab, setSelectedTab] = useState<number>(0);
+  const [filteredResults, setFilteredResults] = useState(contents);
+  const [counts, setCounts] = useState({
+    all: 0,
+    files: 0,
+    people: 0,
+    chats: 0,
+  });
+  const [tabs, setTabs] = useState(tabsData);
+  const debouncedSearchTerm = useDebounce(searchText, 500); // 500ms delay
+  const [loading, setLoading] = useState(false);
+
+  const setData = async () => {
+    setLoading(true);
+    await createDelay(1000);
+    setLoading(false);
+    setFilteredResults(
+      contents.filter((content) =>
+        content.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+      )
+    );
+  };
+
+  useEffect(() => {
+    if (debouncedSearchTerm.length > 0) {
+      setData();
+    } else {
+      setFilteredResults([]);
+      setOpen(false);
+    }
+  }, [debouncedSearchTerm]);
+
+  useEffect(() => {
+    if (filteredResults.length === 0) {
+      setCounts({
+        all: 0,
+        files: 0,
+        people: 0,
+        chats: 0,
+      });
+    } else {
+      setCounts({
+        all: filteredResults.length,
+        files: filteredResults.filter((content) => content.type == "file")
+          .length,
+        people: filteredResults.filter((content) => content.type == "people")
+          .length,
+        chats: 0,
+      });
+    }
+  }, [filteredResults]);
+
+  const getIconComponent = (icon: string, size: number = 16) => {
+    switch (icon) {
+      case "paperclip":
+        return <Paperclip size={size} />;
+      case "list":
+        return <TextAlignJustify size={size} />;
+      case "chat":
+        return <MessageCircle size={size} />;
+      case "user":
+        return <User size={size} />;
+      default:
+        return null;
+    }
+  };
+
+  const updateTabs = (tab: string, checked: boolean) => {
+    const tempTabs = [...tabs];
+    tempTabs.forEach((t) => {
+      if (t.title.toLowerCase() === tab) {
+        t.show = checked;
+      }
+    });
+    setTabs([...tempTabs]);
+  };
+
+  return (
+    <div className="w-full h-screen flex justify-center items-center bg-[#e4e4e4] text-[#aaaaaa]">
+      <div
+        className={`w-[500px] py-5 rounded-2xl shadow-md bg-white flex flex-col transition-all ease-in-out overflow-hidden duration-700 ${
+          debouncedSearchTerm.length ? "h-[550px]" : "h-[70px]"
+        }`}
+      >
+        {/* Search box and clear button */}
+        <div className="w-full flex justify-between px-5 items-cente">
+          <div className="flex items-center h-full w-[75%]">
+            {loading ? (
+              <div
+                className="inline-block size-5 animate-spin rounded-full border-3 border-solid border-current border-e-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                role="status"
+              ></div>
+            ) : (
+              <Search />
+            )}
+
+            <input
+              type="text"
+              className="outline-none mx-2 text-xl text-black placeholder:text-[#aaaaaa] w-full"
+              placeholder="Searching is easier"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+          </div>
+          <div className="w-[25%] text-end">
+            {debouncedSearchTerm.length ? (
+              <span
+                className="text-[12px] cursor-pointer text-black underline"
+                onClick={() => {
+                  setSearchText("");
+                  setSelectedTab(0);
+                }}
+              >
+                Clear
+              </span>
+            ) : (
+              <>
+                <span className="text-[12px] text-[#8b8b8b] border border-gray-300 p-1.5 rounded-md mr-1.5 mt-1.5 relative overflow-hidden">
+                  s
+                  <span className="text-[12px] border border-gray-300 p-1.5 rounded-md  absolute top-[px] -left-[1px] text-transparent">
+                    s
+                  </span>
+                </span>
+                <span className="text-[12px] text-[#8b8b8b]">quick access</span>
+              </>
+            )}
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+        {/* Content */}
+        <div
+          className={`transition-all ease-in-out ${
+            loading ? "overflow-hidden" : "overflow-scroll"
+          } duration-500 flex flex-col justify-start ${
+            debouncedSearchTerm.length ? "opacity-100" : "opacity-0"
+          }`}
+
+          //className={`flex flex-col justify-start`}
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          {/* Tabs */}
+          <div className="border-b-2 border-[#f4f4f4] w-full flex justify-between items-center mt-5">
+            <div className="px-5 flex gap-3 text-[14px]">
+              {tabs
+                .filter((tab) => tab.show === true)
+                .map((tab, index) => (
+                  <div
+                    key={tab.id}
+                    className={`${
+                      selectedTab === index
+                        ? " font-medium text-black relative after:absolute after:-bottom-[1.5px] after:left-0 after:w-full after:h-[2px] after:bg-black"
+                        : ""
+                    } cursor-pointer flex gap-1 items-center py-1.5 px-2`}
+                    onClick={() => setSelectedTab(index)}
+                  >
+                    <div>
+                      {tab.icon && tab.icon.length
+                        ? getIconComponent(tab.icon.toLowerCase())
+                        : null}
+                    </div>
+                    <div>{tab.title}</div>
+
+                    <div>
+                      <span className="inline-flex items-center rounded-md bg-pink-400/10 py-0.5 px-2 text-xs font-medium text-pink-400">
+                        {index === 0
+                          ? counts.all
+                          : index === 1
+                          ? counts.files
+                          : index === 2
+                          ? counts.people
+                          : "0"}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+            </div>
+            <div
+              className={`px-5 cursor-pointer relative `}
+              onClick={() => setOpen((prev) => !prev)}
+            >
+              <Settings
+                size={20}
+                className={`transition-all duration-300  ${
+                  isOpen ? "rotate-90" : "rotate-0"
+                }`}
+              />
+
+              {isOpen ? (
+                <div
+                  className="absolute right-3 w-[200px] mt-1 bg-white shadow-2xl rounded-xl border border-gray-200 py-2"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {["Files", "People", "Chats"].map((item, idx) => (
+                    <div key={idx} className="flex justify-between px-4 py-2">
+                      <div
+                        className={`flex items-center gap-1 ${
+                          tabs.find(
+                            (tab) =>
+                              tab.title.toLowerCase() === item.toLowerCase()
+                          )?.show
+                            ? "text-black"
+                            : ""
+                        }`}
+                      >
+                        <div>
+                          {tabs.find(
+                            (tab) =>
+                              tab.title.toLowerCase() === item.toLowerCase()
+                          )?.icon.length
+                            ? getIconComponent(
+                                tabs
+                                  .find(
+                                    (tab) =>
+                                      tab.title.toLowerCase() ===
+                                      item.toLowerCase()
+                                  )
+                                  ?.icon.toLowerCase() as string
+                              )
+                            : null}
+                        </div>
+                        <div>{item}</div>
+                      </div>
+                      <div>
+                        <div className="relative group">
+                          <input
+                            type="checkbox"
+                            className="absolute left-1/2 -translate-x-1/2 w-full h-full peer appearance-none rounded-md z-10 cursor-pointer"
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) => {
+                              updateTabs(item.toLowerCase(), e.target.checked);
+                            }}
+                            checked={
+                              tabs.find(
+                                (tab) =>
+                                  tab.title.toLowerCase() === item.toLowerCase()
+                              )?.show
+                                ? true
+                                : false
+                            }
+                          />
+                          <span className="w-7 h-4 flex items-center flex-shrink-0 ml-4 p-1 bg-gray-300 rounded-full duration-300 ease-in-out peer-checked:bg-black after:w-3 after:h-3 after:bg-white after:rounded-full after:shadow-md after:duration-300 peer-checked:after:translate-x-2"></span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          </div>
+          {/* Content Panel*/}
+
+          {loading ? (
+            <div className="py-3 ">
+              {/* List item starts */}
+              {contents.map((content) => (
+                <div
+                  key={content.id}
+                  className="px-5 py-2 border-b border-[#f7f7f7] w-full last:border-0"
+                >
+                  <div className="flex gap-2 animate-pulse">
+                    <div className="size-[38px] rounded-lg relative">
+                      <div className="w-full h-full rounded-lg overflow-hidden bg-gray-200" />
+                    </div>
+                    <div className="flex flex-col">
+                      <div className=" bg-gray-200 w-[150px] h-2 rounded-xl mt-2" />
+                      <div className=" bg-gray-200 w-[100px] h-1.5 mt-2 rounded-xl"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className=" overflow-scroll ">
+              {/* List item starts */}
+              {selectedTab !== 3 &&
+              filteredResults.filter((content) =>
+                selectedTab === 0
+                  ? content
+                  : selectedTab === 1
+                  ? content.type === "file"
+                  : selectedTab === 2
+                  ? content.type === "people"
+                  : content
+              ).length ? (
+                filteredResults
+                  .filter((content) =>
+                    selectedTab === 0
+                      ? content
+                      : selectedTab === 1
+                      ? content.type === "file"
+                      : selectedTab === 2
+                      ? content.type === "people"
+                      : content
+                  )
+                  .map((content, idx) => (
+                    <div
+                      key={content.id}
+                      className={`mt-3 px-5 py-2 border-b border-[#f7f7f7] w-full last:border-0 flex justify-between cursor-pointer hover:bg-[#f8f8f8] group transition-opacity duration-500 delay-[${
+                        (idx + 1) * 1000
+                      }] ${loading ? "opacity-0" : "opacity-100"}`}
+                    >
+                      <div className="flex gap-2">
+                        <div className="size-[38px] rounded-lg relative">
+                          <div className="w-full h-full rounded-lg overflow-hidden">
+                            {content.type === "people" ? (
+                              <Image
+                                width={0}
+                                height={0}
+                                src={`/people/${idx + 1}.jpg`}
+                                sizes="100vw"
+                                className="w-full h-full object-cover"
+                                alt="user"
+                              />
+                            ) : (
+                              <Image
+                                width={0}
+                                height={0}
+                                src={`/people/file.jpg`}
+                                sizes="100vw"
+                                className="w-full h-full object-cover rounded-lg"
+                                alt="file"
+                              />
+                            )}
+                          </div>
+
+                          {content.type === "people" ? (
+                            <div
+                              className={`absolute -bottom-[4px] -right-[4px] size-[12px] bg-white rounded-full overflow-hidden flex justify-center items-center`}
+                            >
+                              <div
+                                className={`w-[70%] h-[70%]  rounded-full ${
+                                  content.isActive
+                                    ? "bg-[#faca00]"
+                                    : "bg-[#de1314]"
+                                }`}
+                              ></div>
+                            </div>
+                          ) : null}
+                        </div>
+
+                        <div className="flex flex-col">
+                          <div className="font-medium text-black text-[14px]">
+                            {content.title}
+                          </div>
+                          <div className="text-gray-400 text-[12px]">{`${
+                            content.type === "people"
+                              ? !content.isActive
+                                ? content.lastActiveDate === "unactivated"
+                                  ? ""
+                                  : ""
+                                : "Last active"
+                              : content.type === "file"
+                              ? `in ${content.folder} -`
+                              : ""
+                          } ${content.lastActiveDate
+                            .slice(0, 1)
+                            .toUpperCase()}${content.lastActiveDate
+                            .slice(1)
+                            .toLocaleLowerCase()}`}</div>
+                        </div>
+                      </div>
+
+                      <div className="justify-self-end items-center gap-3 text-xs text-gray-400 hidden group-hover:flex">
+                        <Link size={12} color="darkgray" />{" "}
+                        <div className="flex items-center gap-1">
+                          <SquareArrowOutUpRight size={12} color="darkgray" />
+                          New Tab
+                        </div>
+                      </div>
+                    </div>
+                  ))
+              ) : (
+                <div className="text-center w-full min-h-[300px] p-5">
+                  No results
+                </div>
+              )}
+            </div>
+          )}
+          {/* List item end */}
+        </div>
+      </div>
     </div>
   );
-}
+};
+
+export default SearchBar;
