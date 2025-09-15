@@ -469,7 +469,7 @@ const SearchBar = () => {
 
       <div className="absolute bottom-0 right-0 text-gray-600 text-[12px] p-3">
         This is a React implementation of a{" "}
-        <a href="https://dribbble.com/shots/17399694-Search-Results-Animation">
+        <a target="_blank" href="https://dribbble.com/shots/17399694-Search-Results-Animation">
           <span className="text-blue-400">dribble</span>
         </a>{" "}
         search animation
