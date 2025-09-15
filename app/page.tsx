@@ -373,9 +373,17 @@ const SearchBar = () => {
                         </div>
 
                         <div className="flex flex-col">
-                          <div className="font-medium text-black text-[14px]">
-                            {content.title}
-                          </div>
+                          <div
+                            className="font-medium text-black text-[14px]"
+                            dangerouslySetInnerHTML={{
+                              __html: content.title.replace(
+                                new RegExp(debouncedSearchTerm, "gi"),
+                                (match) =>
+                                  `<mark style="background-color:#fee7ce">${match}</mark>`
+                              ),
+                            }}
+                          />
+
                           <div className="text-gray-400 text-[12px]">{`${
                             content.type === "people"
                               ? !content.isActive
