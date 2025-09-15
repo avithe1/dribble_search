@@ -440,8 +440,8 @@ const SearchBar = () => {
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-1">
-                          <SquareArrowOutUpRight size={12} color="darkgray" />
+                        <div className="flex items-center gap-1 hover:text-black">
+                          <SquareArrowOutUpRight size={12}  className="hover:text-black"/>
                           <a
                             target="_blank"
                             href="https://avinashrathoddev.vercel.app/"
