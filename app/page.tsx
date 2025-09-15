@@ -340,7 +340,7 @@ const SearchBar = () => {
                               <Image
                                 width={0}
                                 height={0}
-                                src={`/people/${idx + 1}.jpg`}
+                                src={`/people/${content.id}.jpg`}
                                 sizes="100vw"
                                 className="w-full h-full object-cover"
                                 alt="user"
