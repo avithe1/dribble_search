@@ -9,6 +9,7 @@ import {
   SquareArrowOutUpRight,
   MessageCircle,
   TextAlignJustify,
+  Check,
 } from "lucide-react";
 import { createDelay, tabsData } from "./data";
 import { contents } from "./data";
@@ -45,6 +46,8 @@ const SearchBar = () => {
   const [tabs, setTabs] = useState(tabsData);
   const debouncedSearchTerm = useDebounce(searchText, 500); // 500ms delay
   const [loading, setLoading] = useState(false);
+  const [linkHovered, setLinkHovered] = useState(false);
+  const [linkClicked, setLinkClicked] = useState(false);
 
   const setData = async () => {
     setLoading(true);
@@ -56,6 +59,12 @@ const SearchBar = () => {
       )
     );
   };
+
+  useEffect(() => {
+    if (linkClicked) {
+      setTimeout(() => setLinkClicked(false), 600);
+    }
+  }, [linkClicked]);
 
   useEffect(() => {
     if (debouncedSearchTerm.length > 0) {
@@ -403,10 +412,42 @@ const SearchBar = () => {
                       </div>
 
                       <div className="justify-self-end items-center gap-3 text-xs text-gray-400 hidden group-hover:flex">
-                        <Link size={12} color="darkgray" />{" "}
+                        <div className="relative">
+                          <Link
+                            size={12}
+                            color="darkgray"
+                            onMouseEnter={() => setLinkHovered(true)}
+                            onMouseLeave={() => {
+                              setLinkHovered(false);
+                              setLinkClicked(false);
+                            }}
+                            onClick={() => {
+                              setLinkClicked(true);
+                            }}
+                          />{" "}
+                          <div
+                            className={`px-1 py-0.5 rounded text-[10px] text-nowrap bg-black text-white absolute top-0 left-1/2 transform -translate-x-1/2  -translate-y-6 ${
+                              linkHovered ? "visible" : "hidden"
+                            }`}
+                          >
+                            {linkClicked ? (
+                              <div className="flex items-center">
+                                <Check size={10} />&nbsp;&nbsp;Link copied!
+                              </div>
+                            ) : (
+                              "Copy link"
+                            )}
+                          </div>
+                        </div>
+
                         <div className="flex items-center gap-1">
                           <SquareArrowOutUpRight size={12} color="darkgray" />
-                          New Tab
+                          <a
+                            target="_blank"
+                            href="https://avinashrathoddev.vercel.app/"
+                          >
+                            New Tab
+                          </a>
                         </div>
                       </div>
                     </div>
