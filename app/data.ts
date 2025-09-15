@@ -56,13 +56,13 @@ export const tabsData = [
     count: 0,
     show: false,
   },
-  //   {
-  //     id: 4,
-  //     title: "Lists",
-  //     icon: "List",
-  //     count: 0,
-  //     show: false,
-  //   },
+  {
+    id: 5,
+    title: "Lists",
+    icon: "List",
+    count: 0,
+    show: false,
+  },
 ];
 
 export const contents = [

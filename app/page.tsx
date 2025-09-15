@@ -114,7 +114,7 @@ const SearchBar = () => {
   return (
     <div className="w-full h-screen flex justify-center items-center bg-[#e4e4e4] text-[#aaaaaa]">
       <div
-        className={`w-[500px] py-5 rounded-2xl shadow-md bg-white flex flex-col transition-all ease-in-out overflow-hidden duration-700 ${
+        className={`min-w-[500px] py-5 rounded-2xl shadow-md bg-white flex flex-col transition-all ease-in-out overflow-hidden duration-700 ${
           debouncedSearchTerm.length ? "h-[550px]" : "h-[70px]"
         }`}
       >
@@ -224,7 +224,7 @@ const SearchBar = () => {
                   className="absolute right-3 w-[200px] mt-1 bg-white shadow-2xl rounded-xl border border-gray-200 py-2"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  {["Files", "People", "Chats"].map((item, idx) => (
+                  {["Files", "People", "Chats", "Lists"].map((item, idx) => (
                     <div key={idx} className="flex justify-between px-4 py-2">
                       <div
                         className={`flex items-center gap-1 ${
@@ -304,7 +304,7 @@ const SearchBar = () => {
               ))}
             </div>
           ) : (
-            <div className=" overflow-scroll ">
+            <div className="overflow-scroll min-h-[300px]">
               {/* List item starts */}
               {selectedTab !== 3 &&
               filteredResults.filter((content) =>
