@@ -432,7 +432,8 @@ const SearchBar = () => {
                           >
                             {linkClicked ? (
                               <div className="flex items-center">
-                                <Check size={10} />&nbsp;&nbsp;Link copied!
+                                <Check size={10} />
+                                &nbsp;&nbsp;Link copied!
                               </div>
                             ) : (
                               "Copy link"
@@ -441,7 +442,10 @@ const SearchBar = () => {
                         </div>
 
                         <div className="flex items-center gap-1 hover:text-black">
-                          <SquareArrowOutUpRight size={12}  className="hover:text-black"/>
+                          <SquareArrowOutUpRight
+                            size={12}
+                            className="hover:text-black"
+                          />
                           <a
                             target="_blank"
                             href="https://avinashrathoddev.vercel.app/"
@@ -461,6 +465,14 @@ const SearchBar = () => {
           )}
           {/* List item end */}
         </div>
+      </div>
+
+      <div className="absolute bottom-0 right-0 text-gray-600 text-[12px] p-3">
+        This is a React implementation of a{" "}
+        <a href="https://dribbble.com/shots/17399694-Search-Results-Animation">
+          <span className="text-blue-400">dribble</span>
+        </a>{" "}
+        search animation
       </div>
     </div>
   );
