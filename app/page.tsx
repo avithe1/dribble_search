@@ -313,7 +313,7 @@ const SearchBar = () => {
               ))}
             </div>
           ) : (
-            <div className="overflow-scroll min-h-[300px]">
+            <div className="overflow-scroll min-h-[300px] mt-3">
               {/* List item starts */}
               {selectedTab !== 3 &&
               filteredResults.filter((content) =>
@@ -338,7 +338,7 @@ const SearchBar = () => {
                   .map((content, idx) => (
                     <div
                       key={content.id}
-                      className={`mt-3 px-5 py-2 border-b border-[#f7f7f7] w-full last:border-0 flex justify-between cursor-pointer hover:bg-[#f8f8f8] group transition-opacity duration-500 delay-[${
+                      className={`px-5 py-2 border-b border-[#f7f7f7] w-full last:border-0 flex justify-between cursor-pointer hover:bg-[#f8f8f8] group transition-opacity duration-500 delay-[${
                         (idx + 1) * 1000
                       }] ${loading ? "opacity-0" : "opacity-100"}`}
                     >
